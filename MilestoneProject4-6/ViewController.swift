@@ -12,7 +12,7 @@ class ViewController: UITableViewController {
 	
 	//MARK: Properties
 	var items = [String]()
-	var item = [Item]()
+	
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
