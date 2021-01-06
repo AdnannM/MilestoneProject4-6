@@ -12,6 +12,7 @@ class ViewController: UITableViewController {
 	
 	//MARK: Properties
 	var items = [String]()
+	var item = [Item]()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -19,10 +20,24 @@ class ViewController: UITableViewController {
 		navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItem))
 		
 //		navigationItem.leftBarButtonItem = editButtonItem
+		navigationController?.navigationBar.prefersLargeTitles = true
 		
 		navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(shareTapped))
 	
 		title = "Shopping List"
+		
+		let defaults = UserDefaults.standard
+		if let savedItem = defaults.object(forKey: "item") as? Data {
+			let jsonDecoder = JSONDecoder()
+			
+			do {
+				items = try jsonDecoder.decode([String].self, from: savedItem)
+			}
+			catch {
+				print("Fail to load Items..")
+			}
+		}
+
 		
 	}
 	
@@ -80,6 +95,7 @@ class ViewController: UITableViewController {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
 		cell.textLabel?.text = items[indexPath.row]
 		cell.detailTextLabel?.text = dateFormatter.string(from: date as Date)
+		save()
 		return cell
 	}
 	
@@ -91,6 +107,16 @@ class ViewController: UITableViewController {
 		if editingStyle == .delete {
 			items.remove(at: 0)
 			tableView.reloadData()
+		}
+	}
+	
+	func save() {
+		let jsonEncoder = JSONEncoder()
+		if let savedData = try? jsonEncoder.encode(items) {
+			let defaults = UserDefaults.standard
+			defaults.set(savedData, forKey: "item")
+		} else {
+			print("Failed to save Item")
 		}
 	}
 }
